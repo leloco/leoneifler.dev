@@ -1,0 +1,13 @@
+{{ $result := transform.HighlightCodeBlock . }} {{ if .Attributes.title }}
+<figure class="code-wrapper mb-6 mt-12 relative">
+  {{ $result.Wrapped }} {{ with .Attributes.title }}
+  <div
+    class="code-caption absolute bottom-[1.8rem] border-2 border-gray-200 text-gray-500 dark:border-slate-500 dark:text-slate-400 w-full md:w-1/3 pl-2 font-roboto"
+  >
+    {{ . }}
+  </div>
+  {{ end }}
+</figure>
+{{ else }}
+<figure class="code-wrapper my-6 relative">{{ $result.Wrapped }}</figure>
+{{ end }}

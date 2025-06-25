@@ -1,0 +1,13 @@
+{{- $styles := resources.Get "css/output.css" -}}
+{{ $lightChromaCss := resources.Get "css/syntax-light.css" | minify | fingerprint }}
+{{ $darkChromaCss := resources.Get "css/syntax-dark.css" | minify | fingerprint }}
+
+
+{{- if hugo.IsDevelopment }}
+  {{- $styles = $styles | fingerprint -}}
+{{ else }}
+  {{- $styles = $styles | minify | fingerprint -}}
+{{ end -}}
+<link rel="stylesheet" href="{{ $styles.RelPermalink }}">
+<link id="chroma-light-css" rel="stylesheet" href="{{ $lightChromaCss.RelPermalink }}">
+<link id="chroma-dark-css" rel="stylesheet" href="{{ $darkChromaCss.RelPermalink }}">

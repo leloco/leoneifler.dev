@@ -1,0 +1,39 @@
+baseURL: https://leoneifler.dev
+languageCode: en-us
+title: leoneifler - Software-Engineer
+theme: hugo-theme-tailwind
+enableGitInfo: true
+mainSections:
+  - blog
+  - post
+markup:
+  highlight:
+    noClasses: false
+    lineNumbersInTable: false
+    style: onedark
+  tableOfContents:
+    startLevel: 1
+    endLevel: 2
+params:
+  author: Leon Eifler
+  enableBreadcrumbs: true
+  breadcrumbSeparator: " / "
+  showReadingTime: true
+  showUpdateTime: true
+  showAuthor: true
+permalinks:
+  post: /blog/:slug/
+menu:
+  main:
+    - name: Home
+      weight: 10
+      identifier: home
+      url: /
+    - name: About
+      weight: 20
+      identifier: about
+      url: /about
+    - name: Blog
+      weight: 30
+      identifier: blog
+      url: /blog

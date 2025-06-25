@@ -1,0 +1,34 @@
+# Hugo generated files
+/public/
+/resources/_gen/
+/resources/_cache/
+.hugo_build.lock
+
+# Editor and OS specific files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.bak
+*.tmp
+
+# Dependency management (if you use npm, yarn, etc.)
+/node_modules/
+/vendor/ # If you manage Go modules or other dependencies here
+
+# Dotenv files (if you use environment variables for local development)
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Other common ignores
+/.idea/
+.sass-cache/

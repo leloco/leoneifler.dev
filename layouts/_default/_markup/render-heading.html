@@ -1,0 +1,23 @@
+{{/*
+    Hugo Render Hook for Headings (e.g., # My Heading)
+
+    This template customizes how Markdown headings are rendered into HTML.
+    It adds a permalink (anchor link) next to each heading.
+
+    Available variables:
+    .Level    : The heading level (e.g., 1 for H1, 2 for H2)
+    .Anchor   : The auto-generated anchor ID for the heading (e.g., "my-heading")
+    .Text     : The raw text content of the heading.
+    .PlainText: The raw text content of the heading, stripped of any HTML tags.
+*/}}
+<a href="#{{ .Anchor }}" class="heading-permalink" aria-label="Permalink to this section">
+    {{ if or (eq .Level 1) (eq .Level 2) }}
+    <h{{ .Level }} id="{{ .Anchor }}" class="text-black dark:text-slate-200 pb-2 text-2xl">
+    {{ .Text | safeHTML }} 
+    {{ else }}
+    <h{{ .Level }} class="text-black dark:text-slate-200 text-xl">
+    {{ .Text | safeHTML }} 
+    {{ end }}    
+    </h{{ .Level }}>
+</a>
+    

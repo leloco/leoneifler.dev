@@ -1,0 +1,16 @@
+<figure class="my-4">
+  <img
+    src="{{ .Destination | safeURL }}"
+    alt="{{ .Text }}"
+    loading="lazy"
+    decoding="async"
+    class="rounded-sm"
+  />
+  {{- if or .Title .Text -}} {{/* If there's a title OR alt text, create a
+  figcaption */}}
+  <figcaption class="image-caption">
+    {{- if .Title -}} {{ .Title }} {{- else if .Text -}} {{/* Fallback to alt
+    text if no title but alt exists */}} {{ .Text }} {{- end -}}
+  </figcaption>
+  {{- end -}}
+</figure>
