@@ -1,13 +1,12 @@
-<div class="flex flex-col justify-start items-start space-x-2 text-slate-500 dark:text-slate-300">
-{{- if .Date }}
-  {{ $dateMachine := .Date | time.Format "2006-01-02T15:04:05-07:00" }}
-{{ $dateHuman := .Date.Format "02 Jan, 2006" }}
+<div
+  class="flex flex-col justify-start items-start space-x-2 text-slate-500 dark:text-slate-300"
+>
+  {{- if .Date }} {{ $dateMachine := .Date | time.Format
+  "2006-01-02T15:04:05-07:00" }} {{ $dateHuman := .Date.Format "02 Jan, 2006" }}
   <div class="flex flex-row gap-x-1">
     <span>•</span>
     <span>published on</span>
-    <time datetime="{{ $dateMachine }}">
-      {{ $dateHuman }}
-    </time>
+    <time datetime="{{ $dateMachine }}"> {{ $dateHuman }} </time>
   </div>
-{{ end -}}
+  {{ end -}}
 </div>

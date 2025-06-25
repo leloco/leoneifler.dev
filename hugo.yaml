@@ -3,6 +3,8 @@ languageCode: en-us
 title: leoneifler - Software-Engineer
 theme: hugo-theme-tailwind
 enableGitInfo: true
+frontmatter:
+  lastmod: ["lastmod", ":git", "date", "publishDate"] # Recommended precedence
 mainSections:
   - blog
   - post
