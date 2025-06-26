@@ -44,9 +44,10 @@
   }
 
   const resultTemplate = `
+  <a href="{{= it.RelPermalink }}">
   <article class="flex flex-col gap-y-3 p-6 mt-6 mx-2 md:mx-0 rounded-lg shadow-md bg-white dark:bg-gray-700" id="result-{{= it.index }}">
     <h2 class="text-4xl font-semibold text-slate-800 dark:text-slate-200">
-      <a href="{{= it.RelPermalink }}">{{! it.title }}</a>
+      {{! it.title }}
     </h2>
     <h3 class="my-4 text-large text-slate-600 dark:text-slate-300">
       {{! it.snippet }}
@@ -71,6 +72,7 @@
       {{~}}
     </ul>
   </article>
+  </a>
   `;
 
   function showResult(keywords, result) {

@@ -1,4 +1,3 @@
-
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -9,16 +8,21 @@ html {
 @theme {
   --font-roboto: "Roboto", sans-serif;
   --font-raleway: "Raleway", sans-serif;
+  --font-prosto-one: "Prosto One", sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-raleway);
-    font-weight: 700;
-
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-raleway);
+  font-weight: 700;
 }
 
 .post p {
-  @apply my-2; 
+  @apply my-2;
 }
 
 #TableOfContents {
@@ -28,7 +32,6 @@ h1, h2, h3, h4, h5, h6 {
 #TableOfContents a {
   @apply hover:underline;
 }
-
 
 .icon-tabler-copy {
   @apply text-slate-500 dark:text-gray-500;

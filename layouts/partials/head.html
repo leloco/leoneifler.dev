@@ -4,27 +4,33 @@
   name="description"
   content="{{ if .IsHome }}{{ $.Site.Params.Subtitle }}{{ else }}{{ .Summary | plainify }}{{ end }}"
 />
-<meta
-  name="keywords"
-  content="{{ with .Params.Keywords }}{{ delimit . ", " }}{{ else }}{{ $.Site.Params.Keywords }}{{ end }}"
-/>
+<meta name="keywords" content="{{ with .Params.Keywords }}{{ delimit . ", " }}{{
+else }}{{ $.Site.Params.Keywords }}{{ end }}" />
 <meta name="robots" content="noodp" />
-{{- if $.Site.Params.pwa.enabled }}<link rel="manifest" href="/manifest.json" />{{ end -}}
-{{ template "_internal/opengraph.html" . }}
-{{ template "_internal/twitter_cards.html" . }}
+{{- if $.Site.Params.pwa.enabled }}<link
+  rel="manifest"
+  href="/manifest.json"
+/>{{ end -}} {{ template "_internal/opengraph.html" . }} {{ template
+"_internal/twitter_cards.html" . }}
 
 <link rel="canonical" href="{{ .Permalink }}" />
 
 <!-- Google Fonts-->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-<link rel="shortcut icon" href="{{ "favicon.ico" | relURL }}" />
-{{ partialCached "css.html" . }}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+  rel="stylesheet"
+/>
+<link
+  href="https://fonts.googleapis.com/css2?family=Prosto+One&display=swap"
+  rel="stylesheet"
+/>
 
-{{ if .Params.katex}}{{ partial "katex.html" . }}{{ end }}
+<link id="favicon" rel="shortcut icon" href="{{ "favicon-dark.svg" | relURL }}"
+/> <link rel="icon" href="{{ "favicon.ico" | relURL }}" /> {{ partialCached
+"css.html" . }} {{ if .Params.katex}}{{ partial "katex.html" . }}{{ end }}
 
 <!-- https://gohugo.io/templates/internal/#use-the-google-analytics-template -->
-{{- template "_internal/google_analytics.html" . -}}
-
-{{- partial "custom_head.html" . -}}
+{{- template "_internal/google_analytics.html" . -}} {{- partial
+"custom_head.html" . -}}
