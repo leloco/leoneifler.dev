@@ -10,6 +10,15 @@ avoid confusion. */}} {{ $pages := $PageContext.RegularPages }} {{ if .IsHome }}
 $contentTypeName }} {{ end }}
 
 <div class="flex flex-col w-full max-w-4xl lg:max-w-5xl relative">
+  <p class="md:hidden mt-4 text-xl ml-2 md:ml-0 text-black dark:text-slate-300">
+    <span>Browse</span>
+    <a
+      href="/tags"
+      class="text-[#4B70F5] dark:text-[#BEF992] underline font-bold hover:opacity-90"
+    >
+      all tags.</a
+    >
+  </p>
   <div class="flex flex-row">
     <section class="flex flex-col w-full md:w-2/3">
       {{ range (.Paginate $pages).Pages }}

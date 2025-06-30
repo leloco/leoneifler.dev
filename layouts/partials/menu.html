@@ -29,7 +29,8 @@ site.Menus.main }}
         class="hover:text-[#4B70F5] hover:dark:text-[#BEF992] transition-all duration-300 ease-in-out"
       >
         <a
-          class="block px-3 py-3 {{- if $isCurrent }} text-emerald-600{{ end -}}"
+          class="block px-3 py-3 {{ cond (eq $page.Title .Name) "text-[#4B70F5] dark:text-[#BEF992]" "" }}"
+
           href="{{ .URL }}"
           title="{{ .Name }}"
           >{{ .Name }}</a

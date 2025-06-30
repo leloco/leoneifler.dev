@@ -7,9 +7,16 @@ page, its result is cached, and any subsequent similar call will reuse the
 cached result. So we define $pages instead of $paginator (using .Paginate) to
 avoid confusion. */}} {{ $pages := $PageContext.RegularPages }} {{ if .IsHome }}
 {{ $PageContext = .Site }} {{ $pages = where $PageContext.RegularPages "Type"
-$contentTypeName }} {{ end }}
+$contentTypeName }} {{ end }} {{ $activeTag := .Title}}
 
 <div class="flex flex-col w-full max-w-4xl lg:max-w-5xl relative">
+  <div
+    class="md:hidden flex gap-x-1.5 mt-4 text-xl ml-2 text-black dark:text-slate-300"
+  >
+    <p>Dive deeper into</p>
+    <span class="font-bold">#{{ .Title | lower }}</span>
+  </div>
+
   <div class="flex flex-row">
     <section class="flex flex-col w-full md:w-2/3">
       {{ range (.Paginate $pages).Pages }}
@@ -25,7 +32,7 @@ $contentTypeName }} {{ end }}
               {{ .Title | .RenderString }}
             </h2>
             {{ partial "block/desc.html" . }} {{ partial "block/taxonomies.html"
-            .}} {{ partial "block/time.html" . }}
+            . }} {{ partial "block/time.html" . }}
           </div>
         </a>
       </article>
@@ -34,7 +41,7 @@ $contentTypeName }} {{ end }}
     <aside
       class="hidden md:flex flex-col md:w-1/3 ml-3 {{- if .Site.Params.header.sticky }} top-10 {{ else }} top-0 {{ end -}} sticky self-start"
     >
-      {{- partial "sidebar.html" (dict "Context" . "ActiveTag" .Title) -}}
+      {{- partial "sidebar.html" (dict "Context" . "ActiveTag" $activeTag) -}}
     </aside>
   </div>
 

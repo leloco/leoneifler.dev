@@ -6,6 +6,8 @@
 
   const light = "light";
   const dark = "dark";
+  const TAG_LIMIT = 3;
+
   let isDark =
     localStorage.theme === dark ||
     (!("theme" in localStorage) &&
@@ -97,4 +99,33 @@
         theme === "dark" ? "/favicon-dark.svg" : "/favicon-light.svg";
     }
   }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const tagsUl = document.getElementById("tags");
+    if (!tagsUl) return;
+
+    const activeTag = tagsUl.dataset.activeTag;
+    const allTags = Array.from(tagsUl.querySelectorAll("li"));
+    const activeExists = allTags.some((tag) => tag.dataset.name === activeTag);
+
+    if (
+      (activeExists && tagsUl.children.length > 0) ||
+      !window.location.pathname.includes("/tags")
+    ) {
+      return;
+    }
+
+    const tagHTML = `
+      <li class="mt-2 mr-2" data-name="${activeTag}">
+        <a
+          href="/tags/${activeTag}/"
+          class="rounded-sm px-2 py-1 text-sm text-[#4B70F5] dark:text-[#BEF992] ring-1 ring-[#4B70F5] dark:ring-[#BEF992] backdrop-blur-sm bg-slate-50 dark:bg-gray-700"
+        >
+          ${activeTag}
+        </a>
+      </li>
+    `;
+
+    tagsUl.insertAdjacentHTML("beforeend", tagHTML);
+  });
 })();

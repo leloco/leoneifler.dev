@@ -1,0 +1,28 @@
+{{ define "main" }} {{ $type := .Type }}
+<div
+  class="flex flex-col gap-y-3 p-6 mt-6 mx-2 md:mx-0 rounded-lg shadow-md bg-white dark:bg-gray-700 w-full max-w-4xl lg:max-w-5xl"
+>
+  <h1 class="text-4xl font-semibold text-slate-800 dark:text-slate-200">
+    <a href="{{ .RelPermalink }}"
+      >{{ T (printf "taxonomies.%s" $type) | safeHTML }}</a
+    >
+  </h1>
+  <ul class="flex flex-wrap gap-3 mt-3">
+    {{ range $key, $value := .Data.Terms.ByCount }} {{ $term := .Term }} {{
+    $count := .Count }} {{ with $.Site.GetPage (printf "/%s/%s" $type $term) }}
+    <li>
+      <a
+        href="{{ .RelPermalink }}"
+        class="flex space-x-1 w-max rounded-sm px-2 py-1 text-sm text-slate-800 dark:text-slate-300 ring-1 ring-slate-900/5 dark:ring-slate-50/5 backdrop-blur-sm bg-slate-50 dark:bg-gray-700 relative"
+      >
+        <span>{{ .LinkTitle | lower }}</span>
+        <span
+          class="text-[12px] text-white dark:text-black bg-[#4B70F5] dark:bg-[#BEF992] rounded-full px-1.5 absolute -right-1.5 bottom-4"
+          >{{ $count }}</span
+        >
+      </a>
+    </li>
+    {{ end }} {{ end }}
+  </ul>
+</div>
+{{ end }}
