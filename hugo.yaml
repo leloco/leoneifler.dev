@@ -26,6 +26,7 @@ params:
   showReadingTime: true
   showUpdateTime: true
   showAuthor: true
+
 permalinks:
   post: /blog/:slug/
 menu:
