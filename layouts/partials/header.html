@@ -1,4 +1,5 @@
-<div class="flex flex-row gap justify-between w-full max-w-4xl lg:max-w-5xl h-12 mt-3">
+    <div class="fixed h-2 bg-slate-50 dark:bg-gray-800 w-full max-w-4xl lg:max-w-5xl"></div>
+<header class="fixed  bg-slate-50 dark:bg-gray-800 flex flex-row gap items-center justify-between w-full max-w-4xl lg:max-w-5xl h-16 mt-2">
   <a href="/" id="logo" class="flex flex-col items-center ml-2 md:ml-0">
     <div class="flex text-2xl md:text-3xl text-black dark:text-white font-prosto-one">
         <span>leon</span>  
@@ -6,7 +7,7 @@
         <span class="font-bold text-[#4B70F5] dark:text-[#BEF992] ">.</span>
         <span class="text-[#4B70F5] dark:text-[#BEF992] ">dev</span>
     </div>
-    <small class="text-black dark:text-white text-[9px] md:text-[12px] text-center">Developer | Data Nerd |  DevOps Enthusiast</small>
+    <small class="text-black dark:text-white text-[9px] md:text-[12px] text-center">building pipelines for better predictions</small>
    
   </a>
   {{ if .Site.Params.header.title }}
@@ -58,7 +59,7 @@
     </a>
   </div>
   <div class="darkmode-toggle flex flex-none mr-2 md:mr-0">
-    <label for="darkmode-toggle" class="relative flex items-center gap-1 px-3 cursor-pointer rounded-full bg-gray-100 dark:bg-gray-600" title="{{ T "header.darkmode_toggle" }}">
+    <label for="darkmode-toggle" class="relative flex items-center gap-1 px-2 h-12 cursor-pointer rounded-full bg-gray-100 dark:bg-gray-600" title="{{ T "header.darkmode_toggle" }}">
       <input name="darkmode-toggle" id="darkmode-toggle" type="checkbox" class="sr-only peer" aria-label="{{ T "header.darkmode_toggle" }}">
       <div class="absolute z-10 w-15 h-8 rounded-full bg-white dark:bg-gray-700"></div>
       <i class="h-6 w-6 z-20 ml-1 flex-none rounded-full bg-yellow-400 place-self-center peer-checked:invisible">
@@ -69,4 +70,6 @@
       </i>
     </label>
   </div>
-</div>
+</header>
+<div class="h-18"></div>
+

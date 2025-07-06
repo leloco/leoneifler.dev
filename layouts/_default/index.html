@@ -1,38 +1,78 @@
 <!DOCTYPE html>
-<html lang="{{ or site.Language.LanguageCode site.Language.Lang }}" dir="{{ or site.Language.LanguageDirection `ltr` }}">
-<head>
-  {{ block "title" . }}
-    {{- $title := "" -}}
-    {{- $siteTitle := $.Site.Title -}}
-    {{- $subtitle := $.Site.Params.Subtitle -}}
-    {{- $mainTitle := $siteTitle -}}
-    {{- if $subtitle -}}
-      {{- $mainTitle = printf "%s - %s" $siteTitle $subtitle -}}
-    {{- end -}}
-
-    {{- if .IsHome -}}
-      {{- $title = $mainTitle -}}
-    {{- else -}}
-      {{- $title = printf "%s :: %s" .Title $mainTitle -}}
-    {{- end -}}
+<html
+  lang="{{ or site.Language.LanguageCode site.Language.Lang }}"
+  dir="{{ or site.Language.LanguageDirection `ltr` }}"
+>
+  <head>
+    {{ block "title" . }} {{- $title := "" -}} {{- $siteTitle := $.Site.Title
+    -}} {{- $subtitle := $.Site.Params.Subtitle -}} {{- $mainTitle := $siteTitle
+    -}} {{- if $subtitle -}} {{- $mainTitle = printf "%s - %s" $siteTitle
+    $subtitle -}} {{- end -}} {{- if .IsHome -}} {{- $title = $mainTitle -}} {{-
+    else -}} {{- $title = printf "%s :: %s" .Title $mainTitle -}} {{- end -}}
     <title>{{- $title -}}</title>
-  {{ end }}
-  {{ partial "head.html" . }}
-  {{ block "head" . }}{{ end }}
-</head>
-<body class="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-gray-800 ">
-  {{- if hugo.IsDevelopment }}
-    {{ partial "tailwind-size-indicator.html" }}
-  {{ end -}}
-  <header class="flex flex-none justify-center z-10 {{- if $.Site.Params.header.sticky }} bg-slate-50 dark:bg-gray-800 sticky top-0{{ end -}}">
-    {{ partial "header.html" . }}
-  </header>
-  <main class="flex flex-auto justify-center">
-    {{ block "main" . }}{{ end }}
-  </main>
-  <footer class="flex flex-none justify-center">
-    {{ partial "footer.html" . }}
-  </footer>
-  {{ partial "extended_footer.html" . }}
-</body>
+    {{ end }} {{ partial "head.html" . }} {{ block "head" . }}{{ end }}
+  </head>
+  <body class="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-gray-800">
+    {{- if hugo.IsDevelopment }} {{ partial "tailwind-size-indicator.html" }} {{
+    end -}}
+    <header
+      class="flex flex-none justify-center z-10 {{- if $.Site.Params.header.sticky }} bg-slate-50 dark:bg-gray-800 sticky top-0{{ end -}}"
+    >
+      {{ partial "header.html" . }}
+    </header>
+    <main
+      class="flex-1 flex flex-col md:flex-row justify-center items-center text-black dark:text-white overflow-x-hidden"
+    >
+      {{ block "main" . }}{{ end }}
+      <div class="flex flex-col items-left justify-center ml-8">
+        <strong class="text-md">Hi there! I'm</strong>
+        <h1 class="font-raleway text-4xl lg:text-5xl">Leon</h1>
+        <h3 class="my-2">Data Engineer | Backend Developer</h3>
+        <div class="h-1 w-40 my-6 bg-[#4B70F5] dark:bg-[#BEF992]"></div>
+        <p class="w-110 text-left font-raleway text-2xl lg:text-4xl">
+          Trust in data begins with trust in pipelines.
+        </p>
+        <div class="flex space-x-6 mt-6">
+          <a
+            href="/about"
+            class="animate-pulse rounded-md bg-[#4B70F5] dark:bg-[#BEF992] text-white dark:text-black px-3.5 py-2.5 text-md font-semibold shadow-xs hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            About Me
+          </a>
+          <a
+            href="/blog"
+            class="rounded-md border border-[#4B70F5] dark:border-[#BEF992] text-[#4B70F5] dark:text-[#BEF992] px-3.5 py-2.5 text-md font-semibold shadow-xs hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            Latest Articles
+          </a>
+        </div>
+      </div>
+      <div>
+        <img
+          src="/home-light.svg"
+          alt=""
+          class="hidden md:block dark:md:hidden md:h-90 md:w-90 lg:h-150 lg:w-150 max-w-2xl lg:max-w-4xl"
+        />
+        <img
+          src="/home-dark.svg"
+          alt=""
+          class="hidden dark:md:block md:h-90 md:w-90 lg:h-150 lg:w-150 max-w-2xl lg:max-w-4xl"
+        />
+      </div>
+      <!-- <div class="flex flex-col items-center justify-start">
+        <div class="w-full flex flex-col">
+          
+
+          
+        </div>
+        <div class="w-full">
+          
+        </div>
+      </div> -->
+    </main>
+    <footer class="flex flex-none justify-center">
+      {{ partial "footer.html" . }}
+    </footer>
+    {{ partial "extended_footer.html" . }}
+  </body>
 </html>

@@ -8,55 +8,49 @@ title = 'About'
 Hey! I'm Leon a developer based in Germany &#x1f1e9;&#x1f1ea;
 
 <br>
-Over the years, I’ve worn a lot of hats — from testing and frontend work to backend engineering, database tuning, DevOps, and wrangling servers. Each role gave me a new perspective and helped shape how I approach building reliable, scalable systems.
+Over the years, I’ve worn a lot of hats in my tech career — from testing and frontend work to backend engineering, database tuning, DevOps, and wrangling servers.
 <br>
 <br>
 
 ## My Passion
 
-Exploring different areas of software development showed me what I really enjoy — and where I want to grow professionally:
-</br>
-
-**Data-driven systems — gathering, transforming, and structuring data through well-crafted pipelines and infrastructure.**
+Exploring different areas and stages of software development showed me what I really enjoy — and where I want to grow professionally: **Working with data.**
 
 <br>
-That’s why I’m now focusing my career on data engineering: building pipelines, designing data models, and creating systems that provide value for real world scenarios.<br>
-But I think it's more than that. Strong data engineers don’t just think in pipelines and schemas; they think in outcomes, impact, and value.
-<br>
+Gathering, transforming, and structuring data through well-crafted pipelines and infrastructure:
 
 <br>
-
-– _Can this system scale — not just technically, but in terms of trust, quality, and long-term maintainability?_
-
 <br>
-
-– _What’s the smartest way here to reduce manual effort and repetitive work?_
-
-<br>
-
-– _Is this the right data to solve the business problem?_
-
-<br>
-
-These questions drive my work — and that’s why I also blog about it: to share what I learn along the way.
+&#8226; Designing and maintaining scalable data pipelines <br>
+&#8226; Building APIs and automation tools <br>
+&#8226; Ensuring data quality, observability, and reliability<br>
+&#8226; Scripting, CI/CD, and infrastructure as code to ship and maintain data-driven systems at scale<br>
 
 <br>
 
 ## My Blog
 
-First, there’s nothing better than diving into a technical topic and finding clear, well-structured documentation. That was one of the first lessons my mentors taught me a long time ago — and it stuck. (Thanks, buddies!)
+I love documenting what matters — breaking down complex topics into practical, actionable guides that help others get things done.
+<br>
+<br>
 
-That’s what [my blog](/blog) is about: a place where I document the things I care about, but also a way to give back — by providing the kind of structured guidance I always appreciated.
+### What's My Blog About?
 
-You won’t just find data topics on my blog. I’m also into home servers, self-hosted apps, secure communication, and home automation — all interconnected setups designed to make daily life easier and have fun with technology.
+&#8226; Data Engineering fundamentals & best practices <br>
+&#8226; Home servers, self-hosting, and automation
+<br>
+&#8226; Practical tools for daily digital life
+<br>
+&#8226; Privacy-first & secure communication <br>
+<br>
 
-Want to see what the fuss is about? Check it out [here](/blog)!
+Check out the latest posts [here.](/blog)
 
 <br>
 
 ## Contact Me
 
-Whether you have questions, feedback, or just want to connect, feel free to reach out on [LinkedIn](https://www.linkedin.com/in/leon-eifler-9aa9b328a/).
+Whether you have questions, feedback, or just want to connect, [feel free to reach out on LinkedIn.](https://www.linkedin.com/in/leon-eifler-9aa9b328a/)
 
 <br>
 
@@ -70,14 +64,37 @@ What's important for me:
 
 <br>
 
-- [x] Opportunities in data engineering (full-time)
-- [x] Remote-first roles (90% also works)
-- [x] English as the primary language (German and Italian are also fine)
-- [x] Roles where I can start early and focus on getting things done with an awesome team
-- [x] Flexible working hours with essential meetings — no meeting overload
-- [x] You’re interested in my meaningful contribution regardless of where I live — location flexibility is important to me, as it may change over time
-- [x] A place where I can grow and take ownership — through continuous learning, sharing knowledge with the team, and opportunities to speak or contribute at tech events
+&#8226; Opportunities in Data Engineering (full-time)<br>
+
+&#8226; Remote-first roles <br>
+
+&#8226; English as the primary language<br>
+
+&#8226; Roles where I can start early and focus on getting things done with an awesome team <br>
+
+&#8226; Flexible working hours with essential meetings — no meeting overload<br>
+
+&#8226; What matters to you is the impact I make — not where I’m located <br>
+
+&#8226; A place to grow through ownership, continuous learning, and sharing — with opportunities to contribute beyond the team<br>
 
 <br>
 
-I’m serious about finding the right fit, and if you think I’d be a good match, [I’d love to hear from you](https://www.linkedin.com/in/leon-eifler-9aa9b328a/).
+If you think I’d be a good match, [I’d love to hear from you.](https://www.linkedin.com/in/leon-eifler-9aa9b328a/)
+
+<br>
+
+### For NGOs & Non-Profits
+
+If you’re part of an NGO or non-profit organization and need help with:<br>
+<br>
+
+&#8226; Automating workflows or data processes
+
+&#8226; Setting up infrastructure or pipelines
+
+&#8226; Building APIs
+
+<br>
+
+[Please get in touch if you'd like to talk](https://www.linkedin.com/in/leon-eifler-9aa9b328a/) — I’m open to offering my support pro bono.
