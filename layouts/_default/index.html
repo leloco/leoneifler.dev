@@ -4,13 +4,7 @@
   dir="{{ or site.Language.LanguageDirection `ltr` }}"
 >
   <head>
-    {{ block "title" . }} {{- $title := "" -}} {{- $siteTitle := $.Site.Title
-    -}} {{- $subtitle := $.Site.Params.Subtitle -}} {{- $mainTitle := $siteTitle
-    -}} {{- if $subtitle -}} {{- $mainTitle = printf "%s - %s" $siteTitle
-    $subtitle -}} {{- end -}} {{- if .IsHome -}} {{- $title = $mainTitle -}} {{-
-    else -}} {{- $title = printf "%s :: %s" .Title $mainTitle -}} {{- end -}}
-    <title>{{- $title -}}</title>
-    {{ end }} {{ partial "head.html" . }} {{ block "head" . }}{{ end }}
+    {{ partial "head.html" . }} {{ block "head" . }}{{ end }}
   </head>
   <body class="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-gray-800">
     {{- if hugo.IsDevelopment }} {{ partial "tailwind-size-indicator.html" }} {{

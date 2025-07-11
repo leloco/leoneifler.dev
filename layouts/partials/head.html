@@ -1,11 +1,37 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta
-  name="description"
-  content="{{ if .IsHome }}{{ $.Site.Params.Subtitle }}{{ else }}{{ .Summary | plainify }}{{ end }}"
-/>
-<meta name="keywords" content="{{ with .Params.Keywords }}{{ delimit . ", " }}{{
-else }}{{ $.Site.Params.Keywords }}{{ end }}" />
+
+{{ block "title" . }} {{- $title := "" -}} {{- $siteTitle := $.Site.Title -}}
+{{- $subtitle := $.Site.Params.Subtitle -}} {{- $mainTitle := $siteTitle -}} {{-
+if .IsHome -}} {{- $title = printf "%s | %s" $mainTitle $.Site.Params.Slogan -}}
+{{- else -}} {{- $title = printf "%s | %s" .Title $mainTitle -}} {{- end -}}
+<title>{{- $title -}}</title>
+
+{{ if .Params.description }}
+<meta name="description" content="{{ .Params.description | plainify }}" />
+{{ else if .Summary }}
+<meta name="description" content="{{ .Summary | plainify }}" />
+{{ else if .Site.Params.description }}
+<meta name="description" content="{{ .Site.Params.description | plainify  }}" />
+{{ end }} {{ if .Params.Tags }}
+<meta name="keywords" content='{{ delimit .Params.Tags ", " }}' />
+{{ else if .Params.Keywords }}
+<meta name="keywords" content='{{ delimit .Params.Keywords ", " }}' />
+{{ else if .Site.Params.Keywords }}
+<meta name="keywords" content='{{ delimit .Site.Params.Keywords ", " }}' />
+{{ end }}
+<meta name="robots" content="index, follow" />
+<meta property="og:title" content="{{ .Title }}" />
+<meta property="og:description" content="{{ .Params.description }}" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="{{ .Permalink }}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ .Title }}" />
+<meta name="twitter:description" content="{{ .Params.description }}" />
+{{ with .Resources.GetMatch "cover*" }}
+<meta property="og:image" content="{{ .Permalink }}" />
+<meta name="twitter:image" content="{{ .Permalink }}" />
+{{ end }} {{ end }}
 <meta name="robots" content="noodp" />
 {{- if $.Site.Params.pwa.enabled }}<link
   rel="manifest"

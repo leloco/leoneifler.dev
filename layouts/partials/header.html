@@ -1,4 +1,4 @@
-    <div class="fixed h-2 bg-slate-50 dark:bg-gray-800 w-full max-w-4xl lg:max-w-5xl"></div>
+<div class="fixed h-2 bg-slate-50 dark:bg-gray-800 w-full max-w-4xl lg:max-w-5xl"></div>
 <header class="fixed  bg-slate-50 dark:bg-gray-800 flex flex-row gap items-center justify-between w-full max-w-4xl lg:max-w-5xl h-16 mt-2">
   <a href="/" id="logo" class="flex flex-col items-center ml-2 md:ml-0">
     <div class="flex text-2xl md:text-3xl text-black dark:text-white font-prosto-one">
@@ -7,7 +7,7 @@
         <span class="font-bold text-[#4B70F5] dark:text-[#BEF992] ">.</span>
         <span class="text-[#4B70F5] dark:text-[#BEF992] ">dev</span>
     </div>
-    <small class="text-black dark:text-white text-[9px] md:text-[12px] text-center">building pipelines for better predictions</small>
+    <small class="text-black dark:text-white text-[9px] md:text-[12px] text-center">{{- .Site.Params.Slogan -}}</small>
    
   </a>
   {{ if .Site.Params.header.title }}

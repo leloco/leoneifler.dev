@@ -1,6 +1,6 @@
 baseURL: https://leoneifler.dev
 languageCode: en-us
-title: leoneifler - Software-Engineer
+title: leoneifler.dev
 theme: hugo-theme-tailwind
 enableGitInfo: true
 frontmatter:
@@ -26,6 +26,25 @@ params:
   showReadingTime: true
   showUpdateTime: true
   showAuthor: true
+  slogan: building pipelines for better predictions
+  description: Data engineering insights, automation tips, and privacy-friendly tools for self-hosters.
+  keywords:
+    - data engineering
+    - data pipelines
+    - ETL best practices
+    - self-hosting
+    - home servers
+    - server automation
+    - secure communication
+    - privacy tools
+    - encrypted messaging
+    - automation tools
+    - open source software
+    - digital privacy
+    - data infrastructure
+    - homelab
+    - homeserver
+    - server monitoring
 
 permalinks:
   post: /blog/:slug/
@@ -43,3 +62,4 @@ menu:
       weight: 30
       identifier: blog
       url: /blog
+enableRobotsTXT: true
