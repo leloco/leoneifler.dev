@@ -9,6 +9,7 @@ html {
   --font-roboto: "Roboto", sans-serif;
   --font-raleway: "Raleway", sans-serif;
   --font-prosto-one: "Prosto One", sans-serif;
+  --font-source-code-pro: "Source Code Pro", sans-serif;
 }
 
 h1,
@@ -44,4 +45,11 @@ h6 {
 
 .icon-tabler-moon-stars {
   @apply text-slate-300;
+}
+
+.post code {
+  @apply font-source-code-pro;
+}
+.post code:not([class]) {
+  @apply text-sm bg-gray-200 dark:bg-slate-600 px-1 rounded rounded-sm;
 }

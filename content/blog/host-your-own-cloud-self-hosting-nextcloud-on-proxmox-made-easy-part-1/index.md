@@ -10,7 +10,7 @@ type = "post"
 # Motivation
 
 In a world full of data leaks and privacy breaches, protecting your personal data has never been more important. Hosting your own Nextcloud instance gives you full control over your digital life — your files, calendars, contacts, and even your passwords — all stored securely on your own terms.<br>
-And most importantly, it's a great way to learn something new — from Linux basics to server management.
+And most importantly, it's a great way to learn something new — from Linux basics, over containers to server management.
 <br>
 This guide will show you how to set up your own secure, private Nextcloud server—giving you full control over your data and privacy. And trust me, once it’s set up, you won’t want to go back.
 
@@ -20,9 +20,9 @@ Before you start setting up Nextcloud on a dedicated container on Proxmox with N
 
 &#8226; A running Proxmox VE server. Don't have one? [Start here.]()<br>
 &#8226; Basic knowledge of Linux commands. [Master the essentials.]()<br>
-&#8226; Storage configured so your container can use it. [Set it up quick and easily]()<br>
+&#8226; Storage configured so your container can use it. [Set it up quick and easily.]()<br>
 
-# Container Settings
+# Create container
 
 When logged in on the Proxmox Web-Interface click `Create CT`. This opens a multi-step form to create a new LXC (Linux Container).
 
@@ -44,11 +44,12 @@ Print the content of your public key and copy it to your clipboard. This example
 cat ~/.ssh/id_rsa.pub
 ```
 
-Paste your public key into the SSH public key(s) field in the Proxmox web interface.
+Paste your public key into the `SSH public key(s)` field in the Proxmox web interface.
 
 ### Template
 
-Next, choose a template. I recommend Debian since it tends to have fewer frequent updates compared to Ubuntu, making it more stable for your Nextcloud container. You can download a template inside the web interface under your local disk. For example, if your server is called `server`, go to `local (server)` inside the sidebar and then click on `CT templates`.
+Next, choose a template. I recommend Debian since it tends to have fewer frequent updates compared to Ubuntu, making it more stable for your Nextcloud container.
+<br> Don't have a pool of templates to select from? You can download a template inside the web interface under your `local disk`<sup><a href="#fn3">3</a></sup>.
 
 ### Resources
 
@@ -56,9 +57,9 @@ For running your Nextcloud container, the question arises: how should you alloca
 
 From a practical starting point of view, I would go with the following settings:
 
-&#8226; **Storage**: 100 GB<br>
+&#8226; **Storage**: 50-100 GB (or even much more)<br>
 &#8226; **Template**: Debian 12 (Bookworm)<br>
-&#8226; **RAM**: 4 GB (at least)<br>
+&#8226; **RAM**: (at least) 2 GB<br>
 &#8226; **SWAP**: 512 MB (a good starting point, you can increase it later if needed)<br>
 &#8226; **CPU Cores**: 2<br>
 
@@ -80,9 +81,69 @@ Click on Confirm, review the settings, check `Start after created,` and then cli
 Depending on your hardware, after a short while you’ll see the output `OK`.
 <br> Great! Now it’s time to log in to the container and start working.
 
+## Manage container
+
+After setting up your SSH key as described above, you can connect to your newly created container.
+Open your local terminal and make sure to replace the IP address with the actual IP of your Nextcloud container:
+
+```bash
+ssh root@192.168.1.77
+```
+
+Alternatively, you can click on the container in the sidebar of the Proxmox web interface, open the `>_ Console`, and log in there.
+
+Make a quick check if your container can communicate with the world wide web:
+
+```bash
+ping -c 5 1.1.1.1
+```
+
+This will send 5 ICMP echo requests to a Cloudflare DNS and then stop automatically. If there is no packet loss, your connection is stable and you can proceed. Otherwise, troubleshoot by verifying your container settings and that the container’s IP address is correct.
+
+### Update and upgrade all packages
+
+Updating right after creation ensures your container runs the latest, safest, and most stable software versions. We use `apt`<sup><a href="#fn4">4</a></sup>:
+
+```bash
+apt update -y && apt upgrade -y
+```
+
+### Create a dedicated user
+
+For improved security, better isolation and easier auditing we don't want to continue as `root` user because its more likely then to break our system. So just create a user with sudo-privileges by adding him to the sudo group:
+
+```bash
+adduser nextcloud && usermod -aG sudo nextcloud
+```
+
+Now copy your local SSH key that you created earlier to the remote machine for accessing it with SSH.
+Therefore exit the SSH session with the command `exit`.
+
+Transfer the public key from your local terminal to the container:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_rsa nextcloud@192.168.1.77
+```
+
+This example assumes your key is named `id_rsa`. The command is smart enough to figure out that your public key ends with `.pub`. Don’t forget to replace the IP with your own container’s IP address.
+
+Now you can login to your container with `root` (if necessary) and your `nextcloud` user.
+
+Connect via SSH with `nextcloud` user and proceed with the installation of all necessary software.
+
+## Install software
+
+<hr>
+
 <small id="fn1"><sup>1</sup> This means that even if a process runs as root inside the container, it doesn't have root privileges on the Proxmox host, which helps prevent security breaches.</small>
 <br>
 <small id="fn2"><sup>2</sup>
 This lets your container handle more complex workloads and services by allowing certain privileged operations safely inside the container.</small>
 
-## Installing software
+<small id="fn3"><sup>3</sup>
+For example, if your server is called `server`, go to `local (server)` inside the sidebar and then click on `CT templates`.
+</small>
+
+<small id="fn4"><sup>4</sup>
+Debian-based containers use apt; other templates may use different package managers.
+</small>
