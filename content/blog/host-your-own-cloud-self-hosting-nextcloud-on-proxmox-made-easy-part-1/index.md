@@ -34,13 +34,13 @@ You can optionally add a public SSH key to enable easy access to the container f
 
 If you don't have one just create one on inside your local terminal real quick:
 
-```bash
+```bash {lang=bash}
 ssh-keygen -t rsa -b 4096 -C "youremail@example.com"
 ```
 
 Print the content of your public key and copy it to your clipboard. This example assumes your key is named `id_rsa`:
 
-```bash
+```bash {lang=bash}
 cat ~/.ssh/id_rsa.pub
 ```
 
@@ -55,7 +55,7 @@ Next, choose a template. I recommend Debian since it tends to have fewer frequen
 
 For running your Nextcloud container, the question arises: how should you allocate the resources? Well, it really depends on your expected usage. How many users will access and use the cloud service? How big are the files? Which plugins do you plan to install? And so on.
 
-From a practical starting point of view, I would go with the following settings:
+From a beginner point of view, I would go with the following settings:
 
 &#8226; **Storage**: 50-100 GB (or even much more)<br>
 &#8226; **Template**: Debian 12 (Bookworm)<br>
@@ -86,7 +86,7 @@ Depending on your hardware, after a short while you’ll see the output `OK`.
 After setting up your SSH key as described above, you can connect to your newly created container.
 Open your local terminal and make sure to replace the IP address with the actual IP of your Nextcloud container:
 
-```bash
+```bash {lang=bash}
 ssh root@192.168.1.77
 ```
 
@@ -94,7 +94,7 @@ Alternatively, you can click on the container in the sidebar of the Proxmox web 
 
 Make a quick check if your container can communicate with the world wide web:
 
-```bash
+```bash {lang=bash}
 ping -c 5 1.1.1.1
 ```
 
@@ -104,7 +104,7 @@ This will send 5 ICMP echo requests to a Cloudflare DNS and then stop automatica
 
 Updating right after creation ensures your container runs the latest, safest, and most stable software versions. We use `apt`<sup><a href="#fn4">4</a></sup>:
 
-```bash
+```bash {lang=bash}
 apt update -y && apt upgrade -y
 ```
 
@@ -112,7 +112,7 @@ apt update -y && apt upgrade -y
 
 For improved security, better isolation and easier auditing we don't want to continue as `root` user because its more likely then to break our system. So just create a user with sudo-privileges by adding him to the sudo group:
 
-```bash
+```bash {lang=bash}
 adduser nextcloud && usermod -aG sudo nextcloud
 ```
 
@@ -121,7 +121,7 @@ Therefore exit the SSH session with the command `exit`.
 
 Transfer the public key from your local terminal to the container:
 
-```bash
+```bash {lang=bash}
 ssh-copy-id -i ~/.ssh/id_rsa nextcloud@192.168.1.77
 ```
 

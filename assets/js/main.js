@@ -6,7 +6,6 @@
 
   const light = "light";
   const dark = "dark";
-  const TAG_LIMIT = 3;
 
   let isDark =
     localStorage.theme === dark ||
@@ -33,12 +32,14 @@
       lightCssLink.disabled = true;
       darkCssLink.disabled = false;
       updateFavicon(dark);
+      cancelActions(light);
     } else {
       localStorage.theme = light;
       document.documentElement.classList.remove(dark);
       darkCssLink.disabled = true;
       lightCssLink.disabled = false;
       updateFavicon(light);
+      cancelActions(dark);
     }
   });
 
@@ -64,32 +65,7 @@
   });
 
   document.addEventListener("DOMContentLoaded", () => {
-    const copyButtons = document.querySelectorAll(".icon-tabler-copy");
-
-    copyButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const highlightWrapper = button.closest(".highlight");
-
-        if (!highlightWrapper) {
-          console.error(
-            "Could not find '.highlight-wrapper' for the copy button."
-          );
-          return;
-        }
-
-        const codeBlockElement = highlightWrapper.querySelector("pre code");
-
-        if (!codeBlockElement) {
-          console.error(
-            "Could not find 'pre code' within the highlight wrapper."
-          );
-          return;
-        }
-
-        const textToCopy = codeBlockElement.innerText; // .innerText is generally good for code
-        navigator.clipboard.writeText(textToCopy);
-      });
-    });
+    setCopyListeners();
   });
 
   function updateFavicon(theme) {
@@ -128,4 +104,61 @@
 
     tagsUl.insertAdjacentHTML("beforeend", tagHTML);
   });
+
+  function setCopyListeners() {
+    const copyIcons = document.querySelectorAll('[data-name*="copy-icon"]');
+
+    copyIcons.forEach((copyIcon) => {
+      copyIcon.addEventListener("click", () => {
+        const button = copyIcon.parentElement;
+        let checkIcon;
+        let clazz;
+        if (copyIcon.getAttribute("data-name").includes("dark")) {
+          checkIcon = button.querySelector('[data-name="check-icon-dark"]');
+          clazz = "dark:hidden";
+        } else {
+          checkIcon = button.querySelector('[data-name="check-icon-light"]');
+          clazz = "hidden";
+        }
+
+        setTimeout(() => {
+          copyIcon.classList.remove(clazz);
+          checkIcon.classList.add("hidden");
+        }, 1800);
+
+        copyIcon.classList.add(clazz);
+        checkIcon.classList.remove("hidden");
+
+        const highlightWrapper =
+          button.nextElementSibling?.querySelector(".highlight");
+
+        if (!highlightWrapper) {
+          console.error(
+            "Could not find '.highlight-wrapper' for the copy button."
+          );
+          return;
+        }
+
+        const codeBlockElement = highlightWrapper.querySelector("pre code");
+
+        if (!codeBlockElement) {
+          console.error(
+            "Could not find 'pre code' within the highlight wrapper."
+          );
+          return;
+        }
+
+        const textToCopy = codeBlockElement.innerText;
+        console.log(textToCopy);
+        navigator.clipboard.writeText(textToCopy);
+      });
+    });
+  }
+
+  function cancelActions(theme) {
+    const checkIcons = Array.from(
+      document.querySelectorAll(`[data-name="check-icon-${theme}"]`)
+    );
+    checkIcons.map((icon) => icon.classList.add("hidden"));
+  }
 })();

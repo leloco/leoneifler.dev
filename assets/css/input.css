@@ -39,8 +39,7 @@ h6 {
 }
 
 .icon-tabler-copy {
-  @apply text-slate-500 dark:text-gray-500;
-  @apply hover:text-slate-400 hover:dark:text-gray-400 cursor-pointer transition-all duration-200;
+  @apply hidden;
 }
 
 .icon-tabler-moon-stars {
