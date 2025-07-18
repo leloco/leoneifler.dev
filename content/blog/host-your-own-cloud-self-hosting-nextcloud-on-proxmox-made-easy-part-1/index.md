@@ -3,7 +3,7 @@ title = 'Nextcloud: The Ultimate Guide to Self-Hosting on Proxmox with Nginx [Pa
 date = 2025-07-11T11:29:03Z
 draft = false
 tags = ["nextcloud", "proxmox", "linux", "self-hosting", 'open-source', "nginx"]
-description = "In this guide, I’ll show you how to set up Nextcloud inside a Proxmox container and access it easily from your local network via a web interface."
+description = "In this guide, I’ll show you how to set up Nextcloud  inside a Proxmox container and access it easily from your local network via a web interface."
 type = "post"
 +++
 
@@ -12,7 +12,7 @@ type = "post"
 In a world full of data leaks and privacy breaches, protecting your personal data has never been more important. Hosting your own Nextcloud instance gives you full control over your digital life — your files, calendars, contacts, and even your passwords — all stored securely on your own terms.<br>
 And most importantly, it's a great way to learn something new — from Linux basics, over containers to server management.
 <br>
-This guide will show you how to set up your own secure, private Nextcloud server—giving you full control over your data and privacy. And trust me, once it’s set up, you won’t want to go back.
+This guide will show you how to set up your own secure, private Nextcloud server with the LEMP-Stack<sup><a href="#fn1">1</a></sup> — giving you full control over your data and privacy. And trust me, once it’s set up, you won’t want to go back.
 
 # Prerequisites
 
@@ -26,7 +26,7 @@ Before you start setting up Nextcloud on a dedicated container on Proxmox with N
 
 When logged in on the Proxmox Web-Interface click `Create CT`. This opens a multi-step form to create a new LXC (Linux Container).
 
-Choose a `hostname` and a `password`. Make sure `Unprivileged container`<sup><a href="#fn1">1</a></sup> and `Nesting`<sup><a href="#fn2">2</a></sup> are both checked.
+Choose a `hostname` and a `password`. Make sure `Unprivileged container`<sup><a href="#fn2">2</a></sup> and `Nesting`<sup><a href="#fn3">3</a></sup> are both checked.
 
 ### Add SSH public-key (recommended)
 
@@ -102,7 +102,7 @@ This will send 5 ICMP echo requests to a Cloudflare DNS and then stop automatica
 
 ### Update and upgrade all packages
 
-Updating right after creation ensures your container runs the latest, safest, and most stable software versions. We use `apt`<sup><a href="#fn4">4</a></sup>:
+Updating right after creation ensures your container runs the latest, safest, and most stable software versions. We use `apt`<sup><a href="#fn5">5</a></sup>:
 
 ```bash {lang=bash}
 apt update -y && apt upgrade -y
@@ -182,13 +182,13 @@ Enable firewall and add a rule for Nginx
 ufw enable && ufw allow 'Nginx HTTP'
 ```
 
-Verify that UFW only allows incoming traffic on port 80 over http:
+Verify that UFW only allows incoming traffic on port 80 over http (we'll optimize that later):
 
 ```bash {lang=bash}
 sudo ufw status
 ```
 
-### Install and setup database
+### Install database
 
 We'll use an open-source database called MariaDB with version `10.11`. <br>
 
@@ -196,17 +196,85 @@ We'll use an open-source database called MariaDB with version `10.11`. <br>
 Never pick versions arbitrarily — always check Nextcloud’s official documentation to find the compatible PHP and database versions.
 </div>
 
+Download this bash script to a temporary location to add and configure the MariaDB repository: <br>
+
+```bash {lang=bash}
+cd /tmp && wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
+```
+
+Make the script executable and run it:
+
+```bash {lang=bash}
+chmod a+x mariadb_repo_setup && sudo ./mariadb_repo_setup --mariadb-server-version="mariadb-10.11"
+```
+
+Now remove the script because it's no longer needed and install MariaDB:
+
+```bash {lang=bash}
+rm -rf mariadb_repo_setup && sudo apt install -y mariadb-server`
+```
+
+Make sure that the version is really `10.11`:
+
+```bash {lang=bash}
+mariadb --version
+```
+
+The MariaDB-service should be running you can check with:
+
+```bash {lang=bash}
+service mariadb status
+```
+
+Login into the database and change the root password of MariaDB. Always take time to set a secure password:
+
+```bash {lang=bash}
+mariadb -u root && ALTER USER root@localhost IDENTIFIED BY 'changeme!';
+```
+
+Now exit MariaDB simply with:
+
+```bash {lang=bash}
+exit
+```
+
+### Setup database
+
+Login into the database with your new password:
+
+```bash {lang=bash}
+mariadb -u root -p
+```
+
+Now create a database called `nextcloud` and add a new user with the same name. We'll give that user full access to all the tables inside that database, so choose a secure password:
+
+```bash {lang=bash}
+CREATE DATABASE nextcloud
+CREATE USER 'nextcloud'@'localhost' IDENTIFIED BY 'CHANGEME!'
+GRANT ALL on nextcloud.* TO 'nextcloud'@'localhost' IDENTIFIED BY 'CHANGEME!' WITH GRANT OPTION
+```
+
+After changing the password, execute the statements by writing `;` and hit `Enter`. <br>
+Type `EXIT` again.
+Done!
+
+<div class="msg dyn">
+If you're using CREATE USER and GRANT statements in MariaDB, you don't need to FLUSH PRIVILEGES, because these commands automatically update the internal privilege tables and reload them immediately.
+</div>
+
 <hr>
 
-<small id="fn1"><sup>1</sup> This means that even if a process runs as root inside the container, it doesn't have root privileges on the Proxmox host, which helps prevent security breaches.</small>
+<small id="fn1"><sup>1</sup>The LEMP-Stack is a set of open-source software — Linux, Nginx (pronounced "Engine-X"), MariaDB (a MySQL-compatible database), and PHP. All used together to serve dynamic websites and web applications.</small>
+
+<small id="fn2"><sup>2</sup> This means that even if a process runs as root inside the container, it doesn't have root privileges on the Proxmox host, which helps prevent security breaches.</small>
 <br>
-<small id="fn2"><sup>2</sup>
+<small id="fn3"><sup>3</sup>
 This lets your container handle more complex workloads and services by allowing certain privileged operations safely inside the container.</small>
 
-<small id="fn3"><sup>3</sup>
+<small id="fn4"><sup>4</sup>
 For example, if your server is called `server`, go to `local (server)` inside the sidebar and then click on `CT templates`.
 </small>
 
-<small id="fn4"><sup>4</sup>
+<small id="fn5"><sup>5</sup>
 Debian-based containers use apt; other templates may use different package managers.
 </small>
