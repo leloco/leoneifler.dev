@@ -28,7 +28,7 @@ When logged in on the Proxmox Web-Interface click `Create CT`. This opens a mult
 
 Choose a `hostname` and a `password`. Make sure `Unprivileged container`<sup><a href="#fn1">1</a></sup> and `Nesting`<sup><a href="#fn2">2</a></sup> are both checked.
 
-#### Add SSH public-key (recommended)
+### Add SSH public-key (recommended)
 
 You can optionally add a public SSH key to enable easy access to the container from your local terminal (bash, git-bash), avoiding the need to use the Proxmox web interface after setup.
 
@@ -77,11 +77,11 @@ Next type in the IP of your gateway (normally your routers IP). For IPv6: You ca
 
 Just use the host settings (default).
 
-Click on Confirm, review the settings, check `Start after created,` and then click `Finish`.
+Click on `Confirm`, review the settings, check `Start after created,` and then click `Finish`.
 Depending on your hardware, after a short while you’ll see the output `OK`.
 <br> Great! Now it’s time to log in to the container and start working.
 
-## Manage container
+## Configure container
 
 After setting up your SSH key as described above, you can connect to your newly created container.
 Open your local terminal and make sure to replace the IP address with the actual IP of your Nextcloud container:
@@ -131,7 +131,70 @@ Now you can login to your container with `root` (if necessary) and your `nextclo
 
 Connect via SSH with `nextcloud` user and proceed with the installation of all necessary software.
 
+### Add Mount Point
+
+Mount Points allow you to attach a dedicated directory or disk to your container. This separates your Nextcloud data from the container’s base system, making upgrades, backups, migrations and maintenance much easier.
+
+On your LXC create a folder for your data. The path is up to you:
+
+```bash {lang=bash}
+mkdir /mnt/hdd
+```
+
+Now shut the container down:
+
+```bash {lang=bash}
+shutdown -h now
+```
+
+Inside the GUI of Proxmox switch to the `Resources` settings of the LXC then click `Add` and `Mount Point`.
+
+Choose a storage, how much data your Mount Point should hold (disk size) and type in the path from above: `/mnt/hdd`.
+Now start your container again.
+
+Make sure your hdd is listed in your container drives:
+
+```bash {lang=bash}
+df -h
+```
+
 ## Install software
+
+In this section, we get to the heart of the installation. We’ll configure the web server, set up the database, and download Nextcloud. Let’s finish what we started!
+
+### Nginx
+
+Nextcloud officially supports Apache as webserver, but Nginx works smoothly if set up correctly.
+Nginx is faster, lighter, and handles more traffic efficiently, but you need to configure some things manually.
+Apache may be easier to setup out of the box, but Nginx definitely performs better.
+
+So to install it, simply run:
+
+```bash {lang=bash}
+sudo apt update -y && sudo apt install nginx -y
+```
+
+### Enable firewall with UFW
+
+Enable firewall and add a rule for Nginx
+
+```bash {lang=bash}
+ufw enable && ufw allow 'Nginx HTTP'
+```
+
+Verify that UFW only allows incoming traffic on port 80 over http:
+
+```bash {lang=bash}
+sudo ufw status
+```
+
+### Install and setup database
+
+We'll use an open-source database called MariaDB with version `10.11`. <br>
+
+<div class="msg warning">
+Never pick versions arbitrarily — always check Nextcloud’s official documentation to find the compatible PHP and database versions.
+</div>
 
 <hr>
 
