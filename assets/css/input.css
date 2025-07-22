@@ -54,7 +54,7 @@ h6 {
 }
 
 .msg {
-  @apply px-2 py-1 opacity-80 text-sm rounded-sm shadow-sm my-2 w-full lg:w-3/4 flex flex-col;
+  @apply px-2 py-1 opacity-80 text-sm rounded-sm shadow-sm my-4 w-full lg:w-3/4 flex flex-col;
 }
 
 .warning {

@@ -262,6 +262,87 @@ Done!
 If you're using CREATE USER and GRANT statements in MariaDB, you don't need to FLUSH PRIVILEGES, because these commands automatically update the internal privilege tables and reload them immediately.
 </div>
 
+## Install PHP
+
+Nextcloud relies on PHP as its backend language, so the PHP runtime must be installed to execute its server-side code.
+
+We need to install a bunch of packages:
+
+```bash {lang=bash}
+apt install php8.3 php8.3-fpm php8.3-mysql php-common php8.3-cli php8.3-common php8.3-json php8.3-opcache php8.3-readline php8.3-mbstring php8.3-xml php8.3-gd php8.3-curl php-imagick php8.3-zip php8.3-xml php8.3-bz2 php8.3-intl php8.3-bcmath php8.3-gmp
+```
+
+One of the most important packages is `php-fpm`. It's a server-side daemon that manages a pool of worker processes to efficiently handle multiple PHP requests in parallel, improving performance and scalability for web applications.
+
+Now start the fpm-service and enable it on startup:
+
+```bash {lang=bash}
+sudo systemctl start php8.3-fpm && sudo systemctl enable php8.3-fpm
+```
+
+### Optimize PHP
+
+To enhance both the performance and security of your server’s PHP installation, you need to configure the `php.ini` file.
+
+You can use any text editor you prefer, such as nano or vim.
+I personally choose vim because it’s a powerful tool — once mastered, it offers a fast and efficient editing experience. If you want to dive into it, [check out this post.]()
+
+Open the file with:
+
+```bash {lang=bash}
+vim /etc/php/8.3/fpm/php.ini
+```
+
+It really depends on your specific needs, but as a solid starting point, I recommend the following settings:
+
+### Resource limits
+
+```bash {lang=bash}
+memory_limit = 512M
+upload_max_filesize = 50G ; Maximum size of an uploaded file
+post_max_size = 50G ; Maximum data size of a POST request. Should be >= to upload_max_filesize
+max_execution_time = 3600 ; Time allowed to receive and parse incoming data (like file uploads)
+max_input_time = 3600 ; Time allowed for the PHP script to run after data is received.
+```
+
+### Error handling
+
+```bash {lang=bash}
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+display_errors = Off ; Hides PHP error messages from users to protect sensitive info
+log_errors = On
+error_log = /var/log/php_errors.log
+```
+
+### Other
+
+```bash {lang=bash}
+date.timezone = Europe/Berlin ; depends on your server location
+```
+
+### Enable OPCache
+
+Drastically improves PHP performance. Normally, when PHP runs a script, it parses and compiles it into bytecode every single time. OPcache skips that by caching the compiled version.
+
+```bash {lang=bash}
+opcache.enable = 1
+opcache.memory_consumption = 128
+opcache.interned_strings_buffer = 8
+opcache.max_accelerated_files = 10000
+opcache.revalidate_freq = 1
+opcache.validate_timestamps = 1
+```
+
+### Security
+
+This setting makes sure PHP only runs real script files, not guessed ones — which helps keep your server safe, especially with Nginx.
+
+```bash {lang=bash}
+cgi.fix_pathinfo = 0
+```
+
+After making your changes, press `Esc` to change to Normal mode, then type `:wq` to save and exit the vim-editor.
+
 <hr>
 
 <small id="fn1"><sup>1</sup>The LEMP-Stack is a set of open-source software — Linux, Nginx (pronounced "Engine-X"), MariaDB (a MySQL-compatible database), and PHP. All used together to serve dynamic websites and web applications.</small>
@@ -278,3 +359,7 @@ For example, if your server is called `server`, go to `local (server)` inside th
 <small id="fn5"><sup>5</sup>
 Debian-based containers use apt; other templates may use different package managers.
 </small>
+
+```
+
+```
