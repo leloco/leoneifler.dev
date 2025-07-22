@@ -262,7 +262,7 @@ Done!
 If you're using CREATE USER and GRANT statements in MariaDB, you don't need to FLUSH PRIVILEGES, because these commands automatically update the internal privilege tables and reload them immediately.
 </div>
 
-## Install PHP
+### Install PHP
 
 Nextcloud relies on PHP as its backend language, so the PHP runtime must be installed to execute its server-side code.
 
@@ -280,7 +280,7 @@ Now start the fpm-service and enable it on startup:
 sudo systemctl start php8.3-fpm && sudo systemctl enable php8.3-fpm
 ```
 
-### Optimize PHP
+**Optimize PHP**
 
 To enhance both the performance and security of your server’s PHP installation, you need to configure the `php.ini` file.
 
@@ -295,7 +295,7 @@ vim /etc/php/8.3/fpm/php.ini
 
 It really depends on your specific needs, but as a solid starting point, I recommend the following settings:
 
-### Resource limits
+**Resource limits**
 
 ```bash {lang=bash}
 memory_limit = 512M
@@ -305,7 +305,7 @@ max_execution_time = 3600 ; Time allowed to receive and parse incoming data (lik
 max_input_time = 3600 ; Time allowed for the PHP script to run after data is received.
 ```
 
-### Error handling
+**Error handling**
 
 ```bash {lang=bash}
 error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
@@ -314,13 +314,13 @@ log_errors = On
 error_log = /var/log/php_errors.log
 ```
 
-### Other
+**Other**
 
 ```bash {lang=bash}
 date.timezone = Europe/Berlin ; depends on your server location
 ```
 
-### Enable OPCache
+**Enable OPCache**
 
 Drastically improves PHP performance. Normally, when PHP runs a script, it parses and compiles it into bytecode every single time. OPcache skips that by caching the compiled version.
 
@@ -333,7 +333,7 @@ opcache.revalidate_freq = 1
 opcache.validate_timestamps = 1
 ```
 
-### Security
+**Security**
 
 This setting makes sure PHP only runs real script files, not guessed ones — which helps keep your server safe, especially with Nginx.
 
@@ -342,6 +342,53 @@ cgi.fix_pathinfo = 0
 ```
 
 After making your changes, press `Esc` to change to Normal mode, then type `:wq` to save and exit the vim-editor.
+
+### Configure Nginx
+
+Create a new Nginx config file for Nextcloud:
+
+```bash {lang=bash}
+sudo vim /etc/nginx/sites-available/nextcloud
+```
+
+This will open a new file where you can add the Nginx configuration for your Nextcloud setup.
+
+We’ll start with a minimal HTTP-only setup where Nginx simply handles file routing and passes PHP requests to PHP-FPM. Further optimizations will be covered in a separate post when we explore the full architecture:
+
+```bash {lang=bash}
+server {
+    listen 80;
+    server_name localhost;
+
+    root /var/www/nextcloud;
+    index index.php;
+
+    client_max_body_size 50G;
+    fastcgi_buffers 64 4K;
+
+    location / {
+        try_files $uri $uri/ /index.php$request_uri;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    location ~* \.(?:jpg|jpeg|gif|bmp|ico|png|css|js|woff|woff2|svg|ttf|eot)$ {
+        access_log off;
+        expires max;
+    }
+}
+
+```
 
 <hr>
 
