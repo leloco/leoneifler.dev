@@ -66,3 +66,7 @@ h6 {
   @apply bg-blue-200 text-blue-700;
   @apply before:content-['Did_you_know_?'] before:font-bold before:mr-0.5 before:uppercase before:border-b-1 before:border-blue-300 before:font-raleway before:mb-1;
 }
+
+.fn {
+  @apply scroll-mt-20 block;
+}

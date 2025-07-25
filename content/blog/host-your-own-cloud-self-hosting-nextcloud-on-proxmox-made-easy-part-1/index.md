@@ -49,7 +49,7 @@ Paste your public key into the `SSH public key(s)` field in the Proxmox web inte
 ### Template
 
 Next, choose a template. I recommend Debian since it tends to have fewer frequent updates compared to Ubuntu, making it more stable for your Nextcloud container.
-<br> Don't have a pool of templates to select from? You can download a template inside the web interface under your `local disk`<sup><a href="#fn3">3</a></sup>.
+<br> Don't have a pool of templates to select from? You can download a template inside the web interface under your `local disk`<sup><a href="#fn4">4</a></sup>.
 
 ### Resources
 
@@ -299,11 +299,15 @@ It really depends on your specific needs, but as a solid starting point, I recom
 
 ```bash {lang=bash}
 memory_limit = 512M
-upload_max_filesize = 50G ; Maximum size of an uploaded file
-post_max_size = 50G ; Maximum data size of a POST request. Should be >= to upload_max_filesize
+upload_max_filesize = 4G ; Maximum size of an uploaded file
+post_max_size = 4G ; Maximum data size of a POST request. Should be >= to upload_max_filesize
 max_execution_time = 3600 ; Time allowed to receive and parse incoming data (like file uploads)
 max_input_time = 3600 ; Time allowed for the PHP script to run after data is received.
 ```
+
+<div class="msg dyn">
+If you're using CREATE USER and GRANT statements in MariaDB, you don't need to FLUSH PRIVILEGES, because these commands automatically update the internal privilege tables and reload them immediately.
+</div>
 
 **Error handling**
 
@@ -353,60 +357,181 @@ sudo vim /etc/nginx/sites-available/nextcloud
 
 This will open a new file where you can add the Nginx configuration for your Nextcloud setup.
 
-We’ll start with a minimal HTTP-only setup where Nginx simply handles file routing and passes PHP requests to PHP-FPM. Further optimizations will be covered in a separate post when we explore the full architecture:
+We’ll start with a minimal HTTP-only setup where Nginx handles file routing and passes PHP requests to PHP-FPM. In the next post, we’ll explore the full architecture and I explain why this approach is useful:
 
-```bash {lang=bash}
+```bash {lang=bash, title="/etc/nginx/sites-available/nextcloud"}
+upstream php-handler {
+    server unix:/run/php/php8.3-fpm.sock;
+}
+
 server {
     listen 80;
-    server_name localhost;
 
     root /var/www/nextcloud;
-    index index.php;
-
-    client_max_body_size 50G;
+    index index.php index.html;
+    client_max_body_size 5G ; equal to or slightly larger than post_max_size in php.ini
     fastcgi_buffers 64 4K;
 
+    # Security headers
+    add_header Referrer-Policy "no-referrer" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Download-Options "noopen" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Permitted-Cross-Domain-Policies "none" always;
+    add_header X-Robots-Tag "noindex, nofollow" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    fastcgi_hide_header X-Powered-By;
+
+    # Pretty URLs and front controller
     location / {
         try_files $uri $uri/ /index.php$request_uri;
     }
 
-    location ~ \.php$ {
+    # Block sensitive paths
+    location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data|\.|autotest|occ|issue|indie|db_|console) {
+        return 404;
+    }
+
+    # PHP handler
+    location ~ \.php(?:$|/) {
+        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
         include fastcgi_params;
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param PATH_INFO $fastcgi_path_info;
-        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_param HTTPS on;
+        fastcgi_param modHeadersAvailable true;
+        fastcgi_param front_controller_active true;
+        fastcgi_pass php-handler;
+        fastcgi_intercept_errors on;
+        fastcgi_request_buffering off;
     }
 
-    location ~ /\.ht {
-        deny all;
-    }
-
-    location ~* \.(?:jpg|jpeg|gif|bmp|ico|png|css|js|woff|woff2|svg|ttf|eot)$ {
+    # Static files
+    location ~ \.(?:css|js|svg|gif|woff2?)$ {
+        try_files $uri /index.php$request_uri;
+        expires 6M;
         access_log off;
-        expires max;
     }
-}
 
+    # DAV client redirect
+    location = / {
+        if ($http_user_agent ~ ^DavClnt) {
+            return 302 /remote.php/webdav/$is_args$args;
+        }
+    }
+
+    # Redirect /remote
+    location /remote {
+        return 301 /remote.php$request_uri;
+    }
+
+    # robots.txt
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+    }
+
+    # MIME types
+    include mime.types;
+    types {
+        text/javascript js mjs;
+        application/wasm wasm;
+    }
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_comp_level 4;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+}
 ```
+
+You can validate the configuration file by running:
+
+```bash {lang=bash}
+nginx -t
+```
+
+If no errors occurred you can restart the Nginx service:
+
+```bash {lang=bash}
+sudo systemctl restart nginx
+```
+
+### Install Nextcloud
+
+Now we can download the latest version of Nextcloud:
+
+```bash {lang=bash}
+cd /tmp && wget https://download.nextcloud.com/server/releases/latest.zip
+```
+
+Unzip the folder and move the folder `nextcloud` to our webserver directory:
+
+```bash {lang=bash}
+mv nextcloud /var/www
+```
+
+Make the user `www-data`<sup><a href="#fn6">6</a></sup> as owner and change the rights for the necessary directories:
+
+```bash {lang=bash}
+chown -R www-data:www-data /var/www/nextcloud
+```
+
+```bash {lang=bash}
+chown -R www-data:www-data /mnt/hdd
+```
+
+```bash {lang=bash}
+chmod -R 755 /var/www/nextcloud/
+```
+
+## Login to Nextcloud
+
+Finally, open your freshly installed Nextcloud web interface by visiting your LXC container’s IP address, e.g., `http://192.168.1.77`.
+Ignore the insecure connection warning for now — we’ll secure it with an SSL certificate later.
+
+Create an admin account with a strong password.
+Change the data directory to `/mnt/hdd/`(or whatever mount point you configured earlier).
+
+For the database connection, enter your `database name`, `username`, `password`, and use `localhost` as the host.
+
+Click `Finish Setup` — and that’s it! Your private Nextcloud server is now set up and running on your local network.
+
+Congratulations! 🎉
 
 <hr>
 
-<small id="fn1"><sup>1</sup>The LEMP-Stack is a set of open-source software — Linux, Nginx (pronounced "Engine-X"), MariaDB (a MySQL-compatible database), and PHP. All used together to serve dynamic websites and web applications.</small>
+<div id="fn1" class="fn">
+<small ><sup>1</sup>The LEMP-Stack is a set of open-source software — Linux, Nginx (pronounced "Engine-X"), MariaDB (a MySQL-compatible database), and PHP. All used together to serve dynamic websites and web applications.</small>
+</div>
 
-<small id="fn2"><sup>2</sup> This means that even if a process runs as root inside the container, it doesn't have root privileges on the Proxmox host, which helps prevent security breaches.</small>
-<br>
-<small id="fn3"><sup>3</sup>
+<div id="fn2" class="fn">
+<small><sup>2</sup> This means that even if a process runs as root inside the container, it doesn't have root privileges on the Proxmox host, which helps prevent security breaches.</small>
+</div>
+
+<div id="fn3" class="fn">
+<small><sup>3</sup>
 This lets your container handle more complex workloads and services by allowing certain privileged operations safely inside the container.</small>
+</div>
 
-<small id="fn4"><sup>4</sup>
+<div id="fn4" class="fn">
+<small><sup>4</sup>
 For example, if your server is called `server`, go to `local (server)` inside the sidebar and then click on `CT templates`.
 </small>
+</div>
 
-<small id="fn5"><sup>5</sup>
+<div id="fn5" class="fn">
+<small><sup>5</sup>
 Debian-based containers use apt; other templates may use different package managers.
 </small>
+</div>
 
-```
-
-```
+<div id="fn6" class="fn">
+<small><sup>6</sup>
+www-data is the user account that web servers like Nginx or Apache run as. It helps keep the server secure by limiting what the web server can access on your system.
+</small>
+</div>

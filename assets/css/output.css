@@ -1699,6 +1699,10 @@ h1, h2, h3, h4, h5, h6 {
     content: var(--tw-content);
   }
 }
+.fn {
+  display: block;
+  scroll-margin-top: calc(var(--spacing) * 20);
+}
 @property --tw-translate-x {
   syntax: "*";
   inherits: false;
