@@ -12,7 +12,7 @@ type = "post"
 In a world full of data leaks and privacy breaches, protecting your personal data has never been more important. Hosting your own Nextcloud instance gives you full control over your digital life — your files, calendars, contacts, and even your passwords — all stored securely on your own terms.<br>
 And most importantly, it's a great way to learn something new — from Linux basics, over containers to server management.
 <br>
-This guide will show you how to set up your own secure, private Nextcloud server with the LEMP-Stack<sup><a href="#fn1">1</a></sup> — giving you full control over your data and privacy. And trust me, once it’s set up, you won’t want to go back.
+This guide will show you how to set up your own secure, private Nextcloud server with the LEMP-Stack<sup><a href="#fn1">1</a></sup> — giving you full control over your data and privacy. And trust me, once it’s set up, **you won’t want to go back.**
 
 # Prerequisites
 
@@ -20,7 +20,7 @@ Before you start setting up Nextcloud on a dedicated container on Proxmox with N
 
 &#8226; A running Proxmox VE server. Don't have one? [Start here.]()<br>
 &#8226; Basic knowledge of Linux commands. [Master the essentials.]()<br>
-&#8226; Storage configured so your container can use it. [Set it up quick and easily.]()<br>
+&#8226; Storage for data configured so your container can use it. [Set it up quick and easily.]()<br>
 
 # Create container
 
@@ -57,10 +57,10 @@ For running your Nextcloud container, the question arises: how should you alloca
 
 From a beginner point of view, I would go with the following settings:
 
-&#8226; **Storage**: 50-100 GB (or even much more)<br>
-&#8226; **Template**: Debian 12 (Bookworm)<br>
+&#8226; **Storage**: 10 GB (this storage is NOT for Nextcloud data, it's for the root filesystem)<br>
+&#8226; **Template**: Debian 12<br>
 &#8226; **RAM**: (at least) 2 GB<br>
-&#8226; **SWAP**: 512 MB (a good starting point, you can increase it later if needed)<br>
+&#8226; **SWAP**: 512 MB<br>
 &#8226; **CPU Cores**: 2<br>
 
 ### Network
@@ -79,7 +79,10 @@ Just use the host settings (default).
 
 Click on `Confirm`, review the settings, check `Start after created,` and then click `Finish`.
 Depending on your hardware, after a short while you’ll see the output `OK`.
-<br> Great! Now it’s time to log in to the container and start working.
+
+In the Proxmox GUI, select your container, go to `Options`, and set `Start at boot` to `Yes` — this ensures it starts automatically when the server reboots.
+
+<br>Great! You're now ready to log into the container and get to work.
 
 ## Configure container
 
@@ -108,12 +111,20 @@ Updating right after creation ensures your container runs the latest, safest, an
 apt update -y && apt upgrade -y
 ```
 
-### Create a dedicated user
+### Install essential packages
 
-For improved security, better isolation and easier auditing we don't want to continue as `root` user because its more likely then to break our system. So just create a user with sudo-privileges by adding him to the sudo group:
+LXC's like Debian use minimal images, so tools like `wget` etc. are not installed by default. Install them with:
 
 ```bash {lang=bash}
-adduser nextcloud && usermod -aG sudo nextcloud
+apt install curl sudo vim ufw wget lsb-release ca-certificates apt-transport-https unzip
+```
+
+### Create a dedicated user
+
+For improved security, better isolation and easier auditing we don't want to continue as `root` user because its more likely then to break our system. So just create a user with sudo-privileges by adding him to the sudo group. Choose any name you want, but I'll go always randomized:
+
+```bash {lang=bash}
+adduser strscrm && usermod -aG sudo strscrm
 ```
 
 Now copy your local SSH key that you created earlier to the remote machine for accessing it with SSH.
@@ -122,14 +133,14 @@ Therefore exit the SSH session with the command `exit`.
 Transfer the public key from your local terminal to the container:
 
 ```bash {lang=bash}
-ssh-copy-id -i ~/.ssh/id_rsa nextcloud@192.168.1.77
+ssh-copy-id -i ~/.ssh/id_rsa strscrm@192.168.1.77
 ```
 
 This example assumes your key is named `id_rsa`. The command is smart enough to figure out that your public key ends with `.pub`. Don’t forget to replace the IP with your own container’s IP address.
 
-Now you can login to your container with `root` (if necessary) and your `nextcloud` user.
+Now you can login to your container with `root` (if necessary) and your non-root user.
 
-Connect via SSH with `nextcloud` user and proceed with the installation of all necessary software.
+Connect via SSH with the non-root user and proceed with the installation of all necessary software.
 
 ### Add Mount Point
 
@@ -138,13 +149,13 @@ Mount Points allow you to attach a dedicated directory or disk to your container
 On your LXC create a folder for your data. The path is up to you:
 
 ```bash {lang=bash}
-mkdir /mnt/hdd
+sudo mkdir /mnt/hdd
 ```
 
 Now shut the container down:
 
 ```bash {lang=bash}
-shutdown -h now
+sudo shutdown -h now
 ```
 
 Inside the GUI of Proxmox switch to the `Resources` settings of the LXC then click `Add` and `Mount Point`.
@@ -176,13 +187,38 @@ sudo apt update -y && sudo apt install nginx -y
 
 ### Enable firewall with UFW
 
-Enable firewall and add a rule for Nginx
+Before activating the firewall, it's important to add a few essential rules.
 
-```bash {lang=bash}
-ufw enable && ufw allow 'Nginx HTTP'
+To maintain access to your server after enabling the firewall, you must allow SSH connections. The following rule allows SSH access from any IP address, for both IPv4 and IPv6. (Approach 1)
+
+If you prefer a more secure approach, you can restrict SSH access to your local network only. This is generally safer, and if you use a VPN, you'll still be able to connect from outside your home network: (Approach 2)
+
+```bash {lang=bash, title="Approach 1"}
+sudo ufw allow 'OpenSSH'
 ```
 
-Verify that UFW only allows incoming traffic on port 80 over http (we'll optimize that later):
+or replace the subnet below with your actual local network range:
+
+```bash {lang=bash, title="Approach 2"}
+'
+sudo ufw allow from 192.168.1.0/24 to any port 22 proto tcp
+```
+
+When you replaced the subnet, simply remove the `'` character at the beginning and execute.
+
+Add a rule for Nginx:
+
+```bash {lang=bash}
+sudo ufw allow 'Nginx HTTP'
+```
+
+and finally enable the firewall:
+
+```bash {lang=bash}
+sudo ufw enable
+```
+
+Now UFW allows incoming traffic for SSH on port 22 and on port 80 only HTTP (we'll optimize that later):
 
 ```bash {lang=bash}
 sudo ufw status
@@ -211,7 +247,7 @@ chmod a+x mariadb_repo_setup && sudo ./mariadb_repo_setup --mariadb-server-versi
 Now remove the script because it's no longer needed and install MariaDB:
 
 ```bash {lang=bash}
-rm -rf mariadb_repo_setup && sudo apt install -y mariadb-server`
+rm -rf mariadb_repo_setup && sudo apt install -y mariadb-server
 ```
 
 Make sure that the version is really `10.11`:
@@ -223,14 +259,22 @@ mariadb --version
 The MariaDB-service should be running you can check with:
 
 ```bash {lang=bash}
-service mariadb status
+systemctl mariadb status
 ```
 
-Login into the database and change the root password of MariaDB. Always take time to set a secure password:
+Login into the database:
 
 ```bash {lang=bash}
-mariadb -u root && ALTER USER root@localhost IDENTIFIED BY 'changeme!';
+sudo mariadb -u root
 ```
+
+And change the root password of MariaDB. Always take time to set a secure password:
+
+```bash {lang=bash}
+ALTER USER root@localhost IDENTIFIED BY 'CHANGEME!'
+```
+
+Hit ENTER and then type `\e` to open the statement inside your default editor and change the password and save. Leave the editor, write `;` and hit ENTER again.
 
 Now exit MariaDB simply with:
 
@@ -243,265 +287,30 @@ exit
 Login into the database with your new password:
 
 ```bash {lang=bash}
-mariadb -u root -p
+sudo mariadb -u root -p
 ```
 
-Now create a database called `nextcloud` and add a new user with the same name. We'll give that user full access to all the tables inside that database, so choose a secure password:
+Now create a database called `nextcloud` and add a new user with the same name and a secure password:
 
 ```bash {lang=bash}
-CREATE DATABASE nextcloud
+CREATE DATABASE nextcloud;
 CREATE USER 'nextcloud'@'localhost' IDENTIFIED BY 'CHANGEME!'
-GRANT ALL on nextcloud.* TO 'nextcloud'@'localhost' IDENTIFIED BY 'CHANGEME!' WITH GRANT OPTION
 ```
 
-After changing the password, execute the statements by writing `;` and hit `Enter`. <br>
-Type `EXIT` again.
+Now to the thing with `\e` from above.
+
+Next we'll give that user full access to all the tables inside that database:
+
+```bash {lang=bash}
+GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'localhost' WITH GRANT OPTION;
+```
+
+Type `exit` again.
 Done!
 
 <div class="msg dyn">
 If you're using CREATE USER and GRANT statements in MariaDB, you don't need to FLUSH PRIVILEGES, because these commands automatically update the internal privilege tables and reload them immediately.
 </div>
-
-### Install PHP
-
-Nextcloud relies on PHP as its backend language, so the PHP runtime must be installed to execute its server-side code.
-
-We need to install a bunch of packages:
-
-```bash {lang=bash}
-apt install php8.3 php8.3-fpm php8.3-mysql php-common php8.3-cli php8.3-common php8.3-json php8.3-opcache php8.3-readline php8.3-mbstring php8.3-xml php8.3-gd php8.3-curl php-imagick php8.3-zip php8.3-xml php8.3-bz2 php8.3-intl php8.3-bcmath php8.3-gmp
-```
-
-One of the most important packages is `php-fpm`. It's a server-side daemon that manages a pool of worker processes to efficiently handle multiple PHP requests in parallel, improving performance and scalability for web applications.
-
-Now start the fpm-service and enable it on startup:
-
-```bash {lang=bash}
-sudo systemctl start php8.3-fpm && sudo systemctl enable php8.3-fpm
-```
-
-**Optimize PHP**
-
-To enhance both the performance and security of your server’s PHP installation, you need to configure the `php.ini` file.
-
-You can use any text editor you prefer, such as nano or vim.
-I personally choose vim because it’s a powerful tool — once mastered, it offers a fast and efficient editing experience. If you want to dive into it, [check out this post.]()
-
-Open the file with:
-
-```bash {lang=bash}
-vim /etc/php/8.3/fpm/php.ini
-```
-
-It really depends on your specific needs, but as a solid starting point, I recommend the following settings:
-
-**Resource limits**
-
-```bash {lang=bash}
-memory_limit = 512M
-upload_max_filesize = 4G ; Maximum size of an uploaded file
-post_max_size = 4G ; Maximum data size of a POST request. Should be >= to upload_max_filesize
-max_execution_time = 3600 ; Time allowed to receive and parse incoming data (like file uploads)
-max_input_time = 3600 ; Time allowed for the PHP script to run after data is received.
-```
-
-<div class="msg dyn">
-If you're using CREATE USER and GRANT statements in MariaDB, you don't need to FLUSH PRIVILEGES, because these commands automatically update the internal privilege tables and reload them immediately.
-</div>
-
-**Error handling**
-
-```bash {lang=bash}
-error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
-display_errors = Off ; Hides PHP error messages from users to protect sensitive info
-log_errors = On
-error_log = /var/log/php_errors.log
-```
-
-**Other**
-
-```bash {lang=bash}
-date.timezone = Europe/Berlin ; depends on your server location
-```
-
-**Enable OPCache**
-
-Drastically improves PHP performance. Normally, when PHP runs a script, it parses and compiles it into bytecode every single time. OPcache skips that by caching the compiled version.
-
-```bash {lang=bash}
-opcache.enable = 1
-opcache.memory_consumption = 128
-opcache.interned_strings_buffer = 8
-opcache.max_accelerated_files = 10000
-opcache.revalidate_freq = 1
-opcache.validate_timestamps = 1
-```
-
-**Security**
-
-This setting makes sure PHP only runs real script files, not guessed ones — which helps keep your server safe, especially with Nginx.
-
-```bash {lang=bash}
-cgi.fix_pathinfo = 0
-```
-
-After making your changes, press `Esc` to change to Normal mode, then type `:wq` to save and exit the vim-editor.
-
-### Configure Nginx
-
-Create a new Nginx config file for Nextcloud:
-
-```bash {lang=bash}
-sudo vim /etc/nginx/sites-available/nextcloud
-```
-
-This will open a new file where you can add the Nginx configuration for your Nextcloud setup.
-
-We’ll start with a minimal HTTP-only setup where Nginx handles file routing and passes PHP requests to PHP-FPM. In the next post, we’ll explore the full architecture and I explain why this approach is useful:
-
-```bash {lang=bash, title="/etc/nginx/sites-available/nextcloud"}
-upstream php-handler {
-    server unix:/run/php/php8.3-fpm.sock;
-}
-
-server {
-    listen 80;
-
-    root /var/www/nextcloud;
-    index index.php index.html;
-    client_max_body_size 5G ; equal to or slightly larger than post_max_size in php.ini
-    fastcgi_buffers 64 4K;
-
-    # Security headers
-    add_header Referrer-Policy "no-referrer" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-Download-Options "noopen" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Permitted-Cross-Domain-Policies "none" always;
-    add_header X-Robots-Tag "noindex, nofollow" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    fastcgi_hide_header X-Powered-By;
-
-    # Pretty URLs and front controller
-    location / {
-        try_files $uri $uri/ /index.php$request_uri;
-    }
-
-    # Block sensitive paths
-    location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data|\.|autotest|occ|issue|indie|db_|console) {
-        return 404;
-    }
-
-    # PHP handler
-    location ~ \.php(?:$|/) {
-        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param PATH_INFO $fastcgi_path_info;
-        fastcgi_param HTTPS on;
-        fastcgi_param modHeadersAvailable true;
-        fastcgi_param front_controller_active true;
-        fastcgi_pass php-handler;
-        fastcgi_intercept_errors on;
-        fastcgi_request_buffering off;
-    }
-
-    # Static files
-    location ~ \.(?:css|js|svg|gif|woff2?)$ {
-        try_files $uri /index.php$request_uri;
-        expires 6M;
-        access_log off;
-    }
-
-    # DAV client redirect
-    location = / {
-        if ($http_user_agent ~ ^DavClnt) {
-            return 302 /remote.php/webdav/$is_args$args;
-        }
-    }
-
-    # Redirect /remote
-    location /remote {
-        return 301 /remote.php$request_uri;
-    }
-
-    # robots.txt
-    location = /robots.txt {
-        allow all;
-        log_not_found off;
-        access_log off;
-    }
-
-    # MIME types
-    include mime.types;
-    types {
-        text/javascript js mjs;
-        application/wasm wasm;
-    }
-
-    # Gzip compression
-    gzip on;
-    gzip_vary on;
-    gzip_comp_level 4;
-    gzip_min_length 256;
-    gzip_proxied any;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-}
-```
-
-You can validate the configuration file by running:
-
-```bash {lang=bash}
-nginx -t
-```
-
-If no errors occurred you can restart the Nginx service:
-
-```bash {lang=bash}
-sudo systemctl restart nginx
-```
-
-### Install Nextcloud
-
-Now we can download the latest version of Nextcloud:
-
-```bash {lang=bash}
-cd /tmp && wget https://download.nextcloud.com/server/releases/latest.zip
-```
-
-Unzip the folder and move the folder `nextcloud` to our webserver directory:
-
-```bash {lang=bash}
-mv nextcloud /var/www
-```
-
-Make the user `www-data`<sup><a href="#fn6">6</a></sup> as owner and change the rights for the necessary directories:
-
-```bash {lang=bash}
-chown -R www-data:www-data /var/www/nextcloud
-```
-
-```bash {lang=bash}
-chown -R www-data:www-data /mnt/hdd
-```
-
-```bash {lang=bash}
-chmod -R 755 /var/www/nextcloud/
-```
-
-## Login to Nextcloud
-
-Finally, open your freshly installed Nextcloud web interface by visiting your LXC container’s IP address, e.g., `http://192.168.1.77`.
-Ignore the insecure connection warning for now — we’ll secure it with an SSL certificate later.
-
-Create an admin account with a strong password.
-Change the data directory to `/mnt/hdd/`(or whatever mount point you configured earlier).
-
-For the database connection, enter your `database name`, `username`, `password`, and use `localhost` as the host.
-
-Click `Finish Setup` — and that’s it! Your private Nextcloud server is now set up and running on your local network.
-
-Congratulations! 🎉
 
 <hr>
 
